@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="A personal expense calendar. Monthly budget: €5 per day plus €100, divided equally across the month. Purchases, plans, and nothing extra.">
+  <title>Expenses — my week</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css?v=monthly-en-2">
+  <script defer src="./core.js?v=monthly-en-2"></script>
+  <script defer src="./app.js?v=monthly-en-2"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="site-header">
+      <a class="wordmark" href="#" id="home-link" aria-label="Expenses — current week">expenses<span aria-hidden="true"> /</span></a>
+      <nav class="header-nav" aria-label="Menu">
+        <button type="button" id="open-library">All items <span class="nav-count" id="catalog-count">0</span></button>
+        <button type="button" id="open-data">Data <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m-4-4 4 4 4-4M4 13v4h12v-4"/></svg></button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-heading" aria-labelledby="page-title">
+        <div><p class="eyebrow">PERSONAL EXPENSE CALENDAR</p><h1 id="page-title">My week<span class="heading-period">.</span></h1><p class="budget-caption">Monthly budget = €5 × days + €100</p></div>
+        <button type="button" class="button primary main-add" id="add-main"><span class="plus" aria-hidden="true">+</span> Add</button>
+      </section>
+
+      <div class="storage-warning" id="storage-warning" role="alert" hidden></div>
+
+      <section class="summary" aria-label="Selected week summary" id="summary"></section>
+      <div class="week-progress" id="week-progress" aria-label="Weekly budget usage"></div>
+      <div class="progress-key"><span><i class="key-mark bought" aria-hidden="true"></i>bought</span><span class="muted"><i class="key-mark planned" aria-hidden="true"></i>planned</span><span class="budget-limit" id="week-budget-label"></span></div>
+
+      <section class="month-overview" id="month-overview" aria-label="Monthly budgets for the displayed week"></section>
+
+      <section class="calendar-section" aria-label="Weekly calendar">
+        <div class="week-toolbar">
+          <div class="week-navigation">
+            <div class="arrow-pair"><button type="button" class="icon-button" id="prev-week" aria-label="Previous week"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg></button><button type="button" class="icon-button" id="next-week" aria-label="Next week"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 5 5 5-5 5"/></svg></button></div>
+            <h2 id="week-title"></h2>
+          </div>
+          <div class="view-navigation"><button type="button" class="text-button" id="today-button">Today</button><button type="button" class="button calendar-button" id="open-calendar"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4.5" width="14" height="12.5" rx="1"/><path d="M6.5 2.5v4m7-4v4M3 9h14"/></svg> Month</button></div>
+        </div>
+        <div class="mobile-day-tabs" id="mobile-day-tabs" aria-label="Days of the selected week"></div>
+        <div class="week-grid" id="week-grid"></div>
+      </section>
+      <div class="calendar-footnote"><p>Grey items are plans. They count as spending only when marked as bought.</p><p>Click an item to edit it.</p></div>
+    </main>
+
+    <footer class="site-footer"><span id="save-status"><span class="status-dot" aria-hidden="true"></span>Saved in this browser</span><button type="button" class="text-button" id="backup-footer">Back up your data <span aria-hidden="true">↗</span></button></footer>
+  </div>
+
+  <dialog id="item-dialog" class="dialog item-dialog" aria-labelledby="item-dialog-title">
+    <div class="dialog-header"><div><p class="eyebrow" id="item-dialog-kicker">PURCHASES & PLANS</p><h2 id="item-dialog-title">Add an item</h2></div><button type="button" class="icon-button close-dialog" aria-label="Close"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div>
+    <form id="item-form" novalidate>
+      <fieldset class="status-selector"><legend class="sr-only">Purchase status</legend><label><input type="radio" name="status" value="bought" checked><span><i class="status-square filled" aria-hidden="true"></i>Bought</span></label><label><input type="radio" name="status" value="planned"><span><i class="status-square outline" aria-hidden="true"></i>Planned</span></label></fieldset>
+      <label class="field-label" for="item-name">Item name</label>
+      <input type="text" id="item-name" name="name" placeholder="e.g. Cappuccino" maxlength="120" autocomplete="off" required>
+      <section class="suggestions-section" id="suggestions-section"><div class="section-caption"><span id="suggestion-label">From past purchases</span><span id="suggestion-count"></span></div><div id="suggestions" class="suggestions-list"></div></section>
+      <div class="field-row"><div><label class="field-label" for="item-price">Total price, €</label><input type="text" inputmode="decimal" id="item-price" name="price" placeholder="0.00" autocomplete="off" required><span class="field-hint">Total for this entry, not per unit</span></div><div><label class="field-label" for="item-date">Date</label><input type="date" id="item-date" name="date" min="1900-01-01" max="9999-12-31" required></div></div>
+      <div id="form-preview" class="form-preview" aria-live="polite"></div>
+      <p class="form-error" id="item-error" role="alert" hidden></p>
+      <div class="form-actions"><button type="button" class="text-button delete-button" id="delete-item" hidden>Delete</button><button type="submit" class="button secondary" id="save-another" value="another">Add another</button><button type="submit" class="button primary" id="save-item" value="close">Add</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="month-dialog" class="dialog month-dialog" aria-labelledby="month-dialog-title">
+    <div class="dialog-header"><div><p class="eyebrow">JUMP TO A DATE</p><h2 id="month-dialog-title">Calendar</h2></div><button type="button" class="icon-button close-dialog" aria-label="Close"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div>
+    <div class="month-navigation"><button type="button" class="icon-button" id="prev-month" aria-label="Previous month"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg></button><h3 id="month-title" aria-live="polite"></h3><button type="button" class="icon-button" id="next-month" aria-label="Next month"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 5 5 5-5 5"/></svg></button></div>
+    <div class="month-weekdays" aria-hidden="true"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div>
+    <div class="month-grid" id="month-grid" role="group" aria-label="Choose a day"></div>
+    <div class="month-legend"><span><i class="mini-dot" aria-hidden="true"></i> purchases</span><span class="muted"><i class="mini-dot plan-dot" aria-hidden="true"></i> plans</span><span><i class="over-example" aria-hidden="true">5</i> over budget</span></div>
+    <div class="month-summary" id="month-summary"></div>
+    <button type="button" class="button full-width" id="month-today">Go to today</button>
+  </dialog>
+
+  <dialog id="library-dialog" class="dialog library-dialog" aria-labelledby="library-title">
+    <div class="dialog-header"><div><p class="eyebrow">YOUR PURCHASED ITEMS</p><h2 id="library-title">All items</h2></div><button type="button" class="icon-button close-dialog" aria-label="Close"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div>
+    <p class="dialog-description">Everything you have bought, with its latest price. Click an item to add it again.</p>
+    <label class="sr-only" for="library-search">Search items</label><input type="search" id="library-search" placeholder="Search items" autocomplete="off">
+    <div class="library-heading"><span id="library-count"></span><span>Latest price</span></div><div id="library-list" class="library-list"></div>
+  </dialog>
+
+  <dialog id="data-dialog" class="dialog data-dialog" aria-labelledby="data-title">
+    <div class="dialog-header"><div><p class="eyebrow">STORAGE & BACKUPS</p><h2 id="data-title">Your data</h2></div><button type="button" class="icon-button close-dialog" aria-label="Close"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div>
+    <p class="dialog-description">Purchases, plans, and your saved items stay in this browser. They are not sent to GitHub or any other server.</p>
+    <div class="data-note">There is no automatic sync between devices. Clearing site data or closing a private browsing session can remove your records. Keep regular backups.</div>
+    <div class="data-stats" id="data-stats"></div>
+    <section class="data-section"><h3>Save a backup</h3><p>One JSON file with all your dates, purchases, plans, and saved items.</p><button type="button" class="button primary full-width" id="export-data">Download backup</button><span class="field-hint" id="last-export"></span></section>
+    <section class="data-section"><h3>Restore or transfer</h3><p>Backed-up records are merged with your current data. Matching IDs are not duplicated; the most recently updated version wins. Deleted records in an older backup will return.</p><button type="button" class="button full-width" id="import-data">Choose a backup file</button><input type="file" id="import-file" accept=".json,application/json" hidden><p class="form-error" id="import-error" role="alert" hidden></p></section>
+    <details class="budget-details"><summary>How the budget works</summary><p>For a month with N days, the budget is €5 × N + €100. The daily limit is that whole monthly budget divided by N. For example, a 30-day month has a €250.00 budget and a daily limit of approximately €8.33.</p><p>A Monday–Sunday week gets the sum of its seven daily limits. A week spanning two months uses each date’s own monthly rate. February and leap years are handled automatically.</p><p>The daily limit is fixed for that month: it does not increase or decrease after a purchase. Unspent money still counts towards the remaining weekly and monthly budgets, but is not carried into the next month. Monthly summaries include every entry in that calendar month, not just the displayed week.</p><p>Plans are not spending. Grey forecasts show what would be left after buying every planned item in the relevant day, week, or month. Negative values mean you would go over budget.</p><p>Purchase prices are stored in whole eurocents. Budget calculations keep full precision; only displayed values are rounded to two decimal places. A nonzero balance that would round to zero is shown as &lt;€0.01. Rounded daily limits may not add up to the displayed monthly total.</p></details>
+  </dialog>
+
+  <dialog id="confirm-dialog" class="dialog confirm-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">Confirm</h2><p id="confirm-description" class="dialog-description"></p><div class="form-actions"><button type="button" class="button" id="confirm-cancel">Cancel</button><button type="button" class="button primary" id="confirm-ok">Continue</button></div></dialog>
+  <div class="toast" id="toast" role="status" hidden><span id="toast-message"></span><button type="button" id="toast-undo" hidden>Undo</button><button type="button" class="toast-close" id="toast-close" aria-label="Dismiss notification">×</button></div>
+  <noscript><p class="noscript">This calendar needs JavaScript. Enable it in your browser settings.</p></noscript>
+</body>
+</html>

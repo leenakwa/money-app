@@ -1,92 +1,140 @@
-# Расходы
+# Expenses — my week
 
-Небольшой личный календарь расходов: **5 € в день и 35 € в неделю**.
-Чёрно-белый интерфейс, без теней, внешних библиотек, сборки и сервера для данных.
+A small, private expense calendar for GitHub Pages. Flat black-and-white design,
+with grey planned purchases. No dependencies, build step, account, backend,
+tracking, external fonts, or API keys. All interface text is in English.
 
-## Опубликовать на GitHub Pages
+## Updated budget
 
-1. Создай репозиторий на GitHub. Для бесплатной публикации можно использовать публичный репозиторий.
-2. Загрузи содержимое архива в корень репозитория: `index.html`, `styles.css`, `core.js`, `app.js`, `favicon.svg` и `.nojekyll`. Сам ZIP загружать не надо. Не клади все файлы в дополнительную папку: `index.html` должен быть сразу в корне.
-3. Открой **Settings → Pages**.
-4. В **Build and deployment → Source** выбери **Deploy from a branch**.
-5. Выбери ветку **main** (или ту, в которую загрузила файлы), папку **/(root)** и нажми **Save**.
-6. Когда публикация закончится, ссылка на сайт появится в этом же разделе.
+For a calendar month with **N days**:
 
-Ни npm, ни ключи API, ни GitHub Actions workflow добавлять не нужно. Все пути относительные: сайт подходит и для адреса репозитория с подпапкой.
+- **Monthly budget:** `€5 × N + €100`.
+- **Daily limit:** `(€5 × N + €100) / N`.
+- **Weekly limit:** the sum of the seven daily limits, Monday through Sunday.
 
-Официальная инструкция: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+| Month length | Monthly budget | Approximate daily limit |
+| --- | --- | --- |
+| 28 days | €240.00 | €8.57 |
+| 29 days | €245.00 | €8.45 |
+| 30 days | €250.00 | €8.33 |
+| 31 days | €255.00 | €8.23 |
 
-**Не загружай резервные JSON-копии покупок в публичный репозиторий.** Код сайта может быть публичным, а сами покупки в этом приложении остаются локальными.
+Dates determine the month length automatically, including leap years. For the
+week 28 September–4 October 2026, the allowance is `3 × (€250 / 30) +
+4 × (€255 / 31)`, approximately **€57.90**. It is not a flat weekly amount.
 
-## Пользоваться
+Purchases are stored in integer eurocents. Daily and weekly budget calculations
+retain fractional cents until display; they are not rounded before adding.
+Monthly totals are exact. Consequently, rounded daily amounts may not sum to
+the monthly budget. A nonzero balance that would round to zero is displayed as
+`<€0.01` (with a minus sign for a negative forecast).
 
-**Добавить.** Нажми `+` у нужного дня или большую кнопку «Добавить». Введи название, стоимость в евро и дату. Десятичный разделитель — запятая или точка. Стоимость относится ко всей записи: например, для «Яблоки, 3 шт.» укажи общую цену трёх яблок. Кнопка «Добавить ещё» сохраняет запись и оставляет окно открытым, с той же датой и статусом. Enter сохраняет и закрывает окно.
+The limit for a given day stays fixed throughout its month. It is **not** the
+remaining monthly money divided by the number of days still left. Unspent money
+is reflected in the weekly and monthly balances, but does not increase the next
+day's allowance or carry into the next month.
 
-**Планы.** В том же окне переключись на «Планирую купить». Планы и их суммы серые. Они не уменьшают настоящий остаток, а участвуют только в прогнозе. Нажми на пустой квадратик у плана, чтобы отметить покупку: сумма перейдёт в реальные расходы без повторного добавления. Обратный переход тоже доступен.
+## Publish or update
 
-**Исправить.** Нажми на название или цену айтема, чтобы поменять название, стоимость, статус или дату. Там же можно удалить запись. После удаления на 10 секунд доступна кнопка «Вернуть».
+The publishing directory must contain these files together:
 
-**Недели и месяцы.** Основной вид — неделя с понедельника по воскресенье. Стрелки переключают недели; «Сегодня» возвращает текущую дату. «Месяц» открывает компактный календарь: выбери день, чтобы перейти к его неделе. Чёрная точка означает покупки, серая — планы, подчёркнутая дата — превышение дневного бюджета фактическими покупками. На телефоне сверху остаются семь дат недели, а ниже показан выбранный день.
+```text
+index.html
+styles.css
+core.js
+app.js
+favicon.svg
+.nojekyll
+```
 
-**Быстрый набор.** Любой купленный айтем автоматически запоминается, независимо от даты. Начни вводить название при добавлении или открой «Все айтемы». Выбор подставляет название и последнюю цену; её можно изменить до сохранения. Последняя цена определяется по дате покупки; при одинаковой дате — по времени изменения записи. Разный регистр и повторные пробелы не создают дубли. Только запланированные айтемы не попадают в историю до покупки. Удаление записи из календаря не удаляет уже купленный айтем из быстрого набора.
+Upload these files to the root of your existing GitHub Pages publishing
+location, replacing their previous versions. This is a static site; no install
+or build command is needed. The archive also contains this guide and automated
+unit tests, which are optional for hosting.
 
-## Бюджет
+For a new repository, the usual branch-based Pages configuration publishes
+`main` and `/(root)` under the repository's **Settings → Pages**. If the site is
+already published, keep its existing publishing configuration.
 
-- Остаток на день = **500 евроцентов − купленные айтемы этого дня**.
-- Остаток на неделю = **3500 евроцентов − купленные айтемы с понедельника по воскресенье**.
-- Серый остаток = **реальный остаток − все планы соответствующего дня или недели**.
+### Preserve existing records
 
-Перерасход показывается явно. Отрицательная серая сумма означает прогнозируемый перерасход. Нулевой остаток означает, что бюджет использован ровно полностью.
+**First, use Data → Download backup in the old site.** Keep the same Pages
+address and directory when updating. The app deliberately retains the previous
+`nedelya-budget:v1:<directory>` browser-storage key and version-1 JSON schema.
+Your old records and saved items are read without a reset or destructive
+migration. Existing item names are never automatically translated or renamed.
+Old JSON backups can still be restored via **Data → Choose a backup file**.
 
-Неиспользованный дневной лимит не увеличивает лимит следующего дня: каждый день он снова равен 5 €. Но экономия сохраняется в общем недельном остатке. Между неделями переносов нет. Подсчёт ведётся в целых евроцентах, без накопления ошибок дробных вычислений.
+A different hostname, browser, device, or site directory uses different local
+storage. Export from the old location and import at the new one. Downloaded
+HTML files likewise should not be assumed to share storage with the hosted site.
 
-## Хранение и резервные копии
+## Everyday use
 
-Данные сохраняются автоматически в `localStorage` **текущего браузера, профиля и адреса сайта**. В интерфейсе нет регистрации и облачной синхронизации. Сайт не отправляет покупки на GitHub, не использует аналитику и не загружает внешние шрифты, картинки или скрипты.
+The main view is one Monday–Sunday week. Use the arrows to change weeks,
+**Today** to return to the current date, or **Month** to open the mini calendar.
+On narrow screens, use the seven day tabs to select the displayed day.
 
-**Важно:** данные могут исчезнуть при очистке данных сайта или профиля браузера. В приватном режиме данные обычно удаляются после закрытия приватных окон. Другой браузер или телефон сам не получит твои записи. Перенос сайта на другой домен или путь тоже потребует переноса копии.
+Each day shows its own computed daily limit, purchases, plans, spending,
+remaining allowance, and a grey forecast. The weekly summary shows actual
+spending, the remaining weekly budget, and the balance with plans. The monthly
+strip includes the month budget, all spending in that month, the remaining
+monthly balance, and the grey forecast. A week crossing two months displays
+**both months separately**. Monthly figures include all records from the
+calendar month, not just entries from the displayed week.
 
-**Данные → Скачать резервную копию** создаёт JSON со всеми покупками, планами и быстрым набором за все даты. Храни его в личной папке или своём облачном хранилище; это обычный, незашифрованный файл.
+**Add** opens the same form for a purchase or plan. Enter the name, total cost of
+that entry, and date; select **Bought** or **Planned**. Prices accept `2.50` and
+`2,50`. **Add another** keeps the form open for the next item. Before saving, the
+form previews the new daily, weekly, and monthly balances.
 
-**Данные → Выбрать файл с копией** позволяет перенести или восстановить записи. Импорт объединяет данные с текущими. Одинаковые ID не дублируются; более поздняя правка имеет приоритет. Удалённые записи из старой копии при импорте вернутся: это объединение, а не полная синхронизация удалений. Перед импортом есть подтверждение. Повреждённый файл не меняет текущие данные.
+Grey plans do not count as actual spending. Tick a plan's square to mark it as
+bought; the same entry changes status, so the cost is not duplicated. Click the
+name or price to edit an entry, move its date, or delete it. Deletion has a
+confirmation and a temporary **Undo** action.
 
-При ошибке локального сохранения приложение показывает предупреждение и не выдаёт несохранённую запись за сохранённую. Если существующие данные не читаются, они не затираются; доступно скачивание исходного файла и восстановление проверенной копии.
+Bought items are saved in **All items**, with their latest purchased price, and
+are also suggested inside the add form. Select a suggestion to fill in its name
+and price. Buying the same item again creates a new expense, not an overwrite.
+Deleting a calendar entry does not erase an item from this saved-item library.
+Planned-only items enter the library when marked as bought.
 
-Сведения о localStorage: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
+Keyboard shortcuts outside forms: **Left / Right** changes weeks, **N** adds an
+item, and **Escape** closes an open dialog. In the name field, **Arrow Down**
+enters the suggestions; arrow keys move between them.
 
-## Локальный запуск
+## Storage and backup
 
-Для просмотра можно открыть `index.html` рядом с остальными файлами, но поведение локального хранения для `file:` зависит от браузера. Надёжнее открыть сайт через GitHub Pages или локальный HTTP-сервер:
+Records stay in this browser's `localStorage`. They are not committed to GitHub,
+uploaded to a server, or automatically synced across devices. Clearing website
+data or closing private browsing may remove them. Keep regular backups.
+
+**Data → Download backup** saves one JSON file containing every dated entry,
+plan, and saved item. Import validates the whole file before saving and merges
+records by ID; it does not duplicate a backup imported twice. For an existing ID,
+the latest `updatedAt` wins. Deleted records that still exist in an old backup
+will return when it is imported. Imported item names are treated as text, not HTML.
+
+If local storage is blocked or full, the app displays an error instead of
+pretending the record was saved. If existing data is unreadable, it is not
+silently overwritten; download the original data first, then restore a valid
+backup. Other tabs using the same site are refreshed after storage changes.
+
+## Run and test locally
+
+From this directory:
 
 ```sh
 python3 -m http.server 8000
 ```
 
-Затем открой `http://localhost:8000` в браузере. Данные локального адреса и опубликованного сайта будут отдельными: перенеси их через экспорт и импорт.
-
-Дополнительно предоставляется версия сайта одним HTML-файлом. В ней те же функции; CSS и JavaScript встроены внутрь. Для публикации только этого файла переименуй его в `index.html`. Остальные файлы тогда не нужны.
-
-## Файлы проекта
-
-```text
-index.html        разметка
-styles.css        адаптивный чёрно-белый интерфейс
-core.js           даты, расчёты, быстрый набор, валидация копий
-app.js            интерфейс, локальное сохранение, импорт и экспорт
-favicon.svg       значок
-.nojekyll         статическая публикация без Jekyll
-README.md         инструкция
-tests/            проверки логики
-```
-
-## Проверки
-
-У приложения нет зависимостей. Для запуска 22 тестов логики нужен Node.js:
+Open `http://localhost:8000`. To run the calculation and data-validation tests
+with Node.js:
 
 ```sh
 node --test tests/core.test.cjs
 ```
 
-Проверены денежные вычисления, отрицательные остатки, недельные границы, смена года, високосный день, переходы летнего времени, история купленных айтемов и импорт копий.
-
-Также проверены 22 сценария интерфейса в Chromium и ширины 320–1440 px. В среде проверки запрещена навигация браузера, поэтому использовалась офлайн-загрузка DOM и тестовая реализация localStorage в памяти; сохранение между реальными перезапусками браузера и публикация на GitHub Pages здесь не проверялись. Демонстрационные покупки для скриншотов в код сайта не включены: новый сайт открывается пустым.
+There is no package install step. The separately provided single-file HTML
+version embeds the same styles and scripts and can be opened directly, but use
+the hosted site for regular storage and keep backups.
