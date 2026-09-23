@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Личный календарь расходов. 5 евро в день, 35 в неделю. Покупки, планы и ничего лишнего.">
+  <title>Расходы — моя неделя</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./core.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="site-header">
+      <a class="wordmark" href="#" id="home-link" aria-label="Расходы — текущая неделя">расходы<span aria-hidden="true"> /</span></a>
+      <nav class="header-nav" aria-label="Меню">
+        <button type="button" id="open-library">Все айтемы <span class="nav-count" id="catalog-count">0</span></button>
+        <button type="button" id="open-data">Данные <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m-4-4 4 4 4-4M4 13v4h12v-4"/></svg></button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-heading" aria-labelledby="page-title">
+        <div><p class="eyebrow">ЛИЧНЫЙ КАЛЕНДАРЬ РАСХОДОВ</p><h1 id="page-title">Моя неделя<span class="heading-period">.</span></h1><p class="budget-caption">5 € в день <span aria-hidden="true">/</span> 35 € в неделю</p></div>
+        <button type="button" class="button primary main-add" id="add-main"><span class="plus" aria-hidden="true">+</span> Добавить</button>
+      </section>
+
+      <div class="storage-warning" id="storage-warning" role="alert" hidden></div>
+
+      <section class="summary" aria-label="Итоги выбранной недели" id="summary"></section>
+      <div class="week-progress" id="week-progress" aria-label="Использование недельного бюджета"></div>
+      <div class="progress-key"><span><i class="key-mark bought" aria-hidden="true"></i>куплено</span><span class="muted"><i class="key-mark planned" aria-hidden="true"></i>запланировано</span><span class="budget-limit">бюджет 35 €</span></div>
+
+      <section class="calendar-section" aria-label="Недельный календарь">
+        <div class="week-toolbar">
+          <div class="week-navigation">
+            <div class="arrow-pair"><button type="button" class="icon-button" id="prev-week" aria-label="Предыдущая неделя"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg></button><button type="button" class="icon-button" id="next-week" aria-label="Следующая неделя"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 5 5 5-5 5"/></svg></button></div>
+            <h2 id="week-title"></h2>
+          </div>
+          <div class="view-navigation"><button type="button" class="text-button" id="today-button">Сегодня</button><button type="button" class="button calendar-button" id="open-calendar"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4.5" width="14" height="12.5" rx="1"/><path d="M6.5 2.5v4m7-4v4M3 9h14"/></svg> Месяц</button></div>
+        </div>
+        <div class="mobile-day-tabs" id="mobile-day-tabs" aria-label="Дни выбранной недели"></div>
+        <div class="week-grid" id="week-grid"></div>
+      </section>
+      <div class="calendar-footnote"><p>Серое — только планы. В расходы попадёт после отметки «куплено».</p><p>Нажми на айтем, чтобы изменить его.</p></div>
+    </main>
+
+    <footer class="site-footer"><span id="save-status"><span class="status-dot" aria-hidden="true"></span>Сохраняется в этом браузере</span><button type="button" class="text-button" id="backup-footer">Сделать резервную копию <span aria-hidden="true">↗</span></button></footer>
+  </div>
+
+  <dialog id="item-dialog" class="dialog item-dialog" aria-labelledby="item-dialog-title">
+    <div class="dialog-header"><div><p class="eyebrow" id="item-dialog-kicker">ПОКУПКИ И ПЛАНЫ</p><h2 id="item-dialog-title">Добавить айтем</h2></div><button type="button" class="icon-button close-dialog" aria-label="Закрыть"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div>
+    <form id="item-form" novalidate>
+      <fieldset class="status-selector"><legend class="sr-only">Статус покупки</legend><label><input type="radio" name="status" value="bought" checked><span><i class="status-square filled" aria-hidden="true"></i>Куплено</span></label><label><input type="radio" name="status" value="planned"><span><i class="status-square outline" aria-hidden="true"></i>Планирую купить</span></label></fieldset>
+      <label class="field-label" for="item-name">Название</label>
+      <input type="text" id="item-name" name="name" placeholder="Например, капучино" maxlength="120" autocomplete="off" required>
+      <section class="suggestions-section" id="suggestions-section"><div class="section-caption"><span id="suggestion-label">Из прошлых покупок</span><span id="suggestion-count"></span></div><div id="suggestions" class="suggestions-list"></div></section>
+      <div class="field-row"><div><label class="field-label" for="item-price">Стоимость, €</label><input type="text" inputmode="decimal" id="item-price" name="price" placeholder="0,00" autocomplete="off" required><span class="field-hint">За весь айтем, не за штуку</span></div><div><label class="field-label" for="item-date">Дата</label><input type="date" id="item-date" name="date" min="1900-01-01" max="9999-12-31" required></div></div>
+      <div id="form-preview" class="form-preview" aria-live="polite"></div>
+      <p class="form-error" id="item-error" role="alert" hidden></p>
+      <div class="form-actions"><button type="button" class="text-button delete-button" id="delete-item" hidden>Удалить</button><button type="submit" class="button secondary" id="save-another" value="another">Добавить ещё</button><button type="submit" class="button primary" id="save-item" value="close">Добавить</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="month-dialog" class="dialog month-dialog" aria-labelledby="month-dialog-title">
+    <div class="dialog-header"><div><p class="eyebrow">ПЕРЕЙТИ К ДАТЕ</p><h2 id="month-dialog-title">Календарь</h2></div><button type="button" class="icon-button close-dialog" aria-label="Закрыть"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div>
+    <div class="month-navigation"><button type="button" class="icon-button" id="prev-month" aria-label="Предыдущий месяц"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg></button><h3 id="month-title" aria-live="polite"></h3><button type="button" class="icon-button" id="next-month" aria-label="Следующий месяц"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 5 5 5-5 5"/></svg></button></div>
+    <div class="month-weekdays" aria-hidden="true"><span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span></div>
+    <div class="month-grid" id="month-grid" role="group" aria-label="Выберите день"></div>
+    <div class="month-legend"><span><i class="mini-dot" aria-hidden="true"></i> покупки</span><span class="muted"><i class="mini-dot plan-dot" aria-hidden="true"></i> планы</span><span><i class="over-example" aria-hidden="true">5</i> перерасход</span></div>
+    <div class="month-summary" id="month-summary"></div>
+    <button type="button" class="button full-width" id="month-today">К сегодняшнему дню</button>
+  </dialog>
+
+  <dialog id="library-dialog" class="dialog library-dialog" aria-labelledby="library-title">
+    <div class="dialog-header"><div><p class="eyebrow">КУПЛЕННЫЕ АЙТЕМЫ</p><h2 id="library-title">Все айтемы</h2></div><button type="button" class="icon-button close-dialog" aria-label="Закрыть"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div>
+    <p class="dialog-description">Всё, что ты когда-либо покупала, с последней ценой. Нажми на айтем, чтобы добавить его снова.</p>
+    <label class="sr-only" for="library-search">Найти айтем</label><input type="search" id="library-search" placeholder="Найти айтем" autocomplete="off">
+    <div class="library-heading"><span id="library-count"></span><span>Последняя цена</span></div><div id="library-list" class="library-list"></div>
+  </dialog>
+
+  <dialog id="data-dialog" class="dialog data-dialog" aria-labelledby="data-title">
+    <div class="dialog-header"><div><p class="eyebrow">ХРАНЕНИЕ И РЕЗЕРВНЫЕ КОПИИ</p><h2 id="data-title">Твои данные</h2></div><button type="button" class="icon-button close-dialog" aria-label="Закрыть"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div>
+    <p class="dialog-description">Покупки, планы и быстрый набор хранятся только в этом браузере. Они не отправляются на GitHub или другой сервер.</p>
+    <div class="data-note">На другом устройстве данные сами не появятся. Очистка данных сайта или закрытие приватного режима может удалить записи. Сохраняй резервные копии.</div>
+    <div class="data-stats" id="data-stats"></div>
+    <section class="data-section"><h3>Сохранить копию</h3><p>Один JSON-файл со всеми датами, покупками, планами и быстрым набором.</p><button type="button" class="button primary full-width" id="export-data">Скачать резервную копию</button><span class="field-hint" id="last-export"></span></section>
+    <section class="data-section"><h3>Восстановить или перенести</h3><p>Записи из копии добавятся к текущим. Одинаковые ID не дублируются; более новая версия записи имеет приоритет. Удалённые записи из старой копии вернутся.</p><button type="button" class="button full-width" id="import-data">Выбрать файл с копией</button><input type="file" id="import-file" accept=".json,application/json" hidden><p class="form-error" id="import-error" role="alert" hidden></p></section>
+    <details class="budget-details"><summary>Как считается бюджет</summary><p>Каждый день: 5 € минус купленные айтемы. Каждая неделя с понедельника по воскресенье: 35 € минус все покупки этой недели. Дневной остаток не переносится на следующий день, но экономия остаётся в недельном бюджете.</p><p>Планы не считаются тратами. Серый прогноз показывает остаток, если купить всё запланированное. Отрицательное число означает перерасход. Цены хранятся в целых евроцентах.</p></details>
+  </dialog>
+
+  <dialog id="confirm-dialog" class="dialog confirm-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">Подтверждение</h2><p id="confirm-description" class="dialog-description"></p><div class="form-actions"><button type="button" class="button" id="confirm-cancel">Отмена</button><button type="button" class="button primary" id="confirm-ok">Продолжить</button></div></dialog>
+  <div class="toast" id="toast" role="status" hidden><span id="toast-message"></span><button type="button" id="toast-undo" hidden>Вернуть</button><button type="button" class="toast-close" id="toast-close" aria-label="Закрыть уведомление">×</button></div>
+  <noscript><p class="noscript">Для календаря нужен JavaScript. Включи его в настройках браузера.</p></noscript>
+</body>
+</html>
